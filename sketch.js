@@ -1,46 +1,61 @@
-let ringColors = [
-    [255, 100, 190],
-    [255, 160, 120],
-    [120, 190, 255],
-    [180, 100, 255],
-    [255, 200, 230]
-];
+let thunder;
+let amplitude;
+
+//load thunderstorm audio
+function preload() {
+    thunder = loadSound("thunderstorm.mp3");
+}
 
 function setup() {
-    let canvas = createCanvas(700, 500);
-    canvas.parent("sketch-container");
-    angleMode(DEGREES);
+    createCanvas(700,500);
+
+    //volume detection
+    amplitude = new p5.Amplitude();
+    amplitude.setInput(thunder);
 }
 
 function draw() {
-    background(10, 5, 25)
+    //gets current volume
+    let volume = amplitude.getLevel();
 
-    //stars
-    noStroke();
-    fill(255);
+    //sky that brightens with sound
+    let brightness = volume * 500;
+    background(15 + brightness, 10 + brightness, 35 + brightness);
 
-    for (let i = 0; i < 100; i++) {
-        circle(random(width), random(height), random(1, 3));
+    //rain
+    stroke(130, 140, 190);
+
+    for(let i = 0; i < 100; i++) {
+        let x = random(width);
+        let y = random(height);
+        line (x, y, x-3, y+15);
     }
 
-    //black hole center
-    translate(width/2, height/2);
-    rotate(25);
-
-    //colored rings
+    //circle that grows with sound
     noFill();
-    for (let i = 0; i < 12; i++) {
-        let c = ringColors[i % ringColors.length];
-        stroke(c[0], c[1], c[2]);
-        strokeWeight(2);
-        ellipse(0, 0, 230 + i * 15, 65 + i * 7)
-    }
+    stroke(180, 150, 255);
+    strokeWeight(2);
 
-    //black hole
-    stroke(45, 15, 115);
-    strokeWeight(8);
-    fill(0);
-    circle(0, 0, 125)
-
+    let size = 100 + volume * 1000;
+    circle(width/2, height/2, size);
 
 }
+
+//mouse press to pause/play audio
+ function mousePressed() {
+    userStartAudio();
+
+    if (thunder.isPlaying()) {
+         thunder.pause();
+    } else {
+        thunder.play();
+     }
+ }
+
+ //checks if sound is above certain volume
+function loudSound() {
+    return amplitude.getLevel() > 0.1;
+ }
+
+
+
